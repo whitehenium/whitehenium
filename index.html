@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whitehenium (WHM) | Next-Gen Multi-Chain Utility Token</title>
-    <!-- Ethers.js & FontAwesome Support -->
+    <!-- Ethers.js v5.7.2 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -196,6 +196,39 @@
             color: #cbd5e1;
         }
 
+        .progress-container {
+            margin-bottom: 15px;
+            background: rgba(10, 15, 29, 0.8);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #a0aec0;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            background: #1e293b;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #f0b90b, #4ade80);
+            transition: width 0.6s ease-in-out;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+        }
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -354,10 +387,22 @@
             <h3>Direct Crypto Presale</h3>
             <div class="stage-badge" id="current-stage-display">Current Stage: Level 1 ($0.001 / WHM)</div>
 
-            <!-- LIVE BNB RATE DISPLAY BOX -->
+            <!-- LIVE BNB PRICE BOX -->
             <div class="live-price-box">
                 <span><i class="fa-solid fa-chart-line" style="color:#4ade80;"></i> Live BNB Price:</span>
                 <strong id="live-bnb-price" style="color:var(--primary);">Fetching...</strong>
+            </div>
+
+            <!-- LIVE TOKENS SOLD PROGRESS BAR -->
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span>Tokens Sold: <strong id="sold-tokens-text" style="color: #38bdf8;">Loading...</strong></span>
+                    <span>Target: <strong style="color: #fff;">100M / Stage</strong></span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                </div>
+                <div style="text-align: right; font-size: 11px; color: #a0aec0; margin-top: 5px;" id="progress-percent-text">0% Completed</div>
             </div>
 
             <div class="form-group">
@@ -383,10 +428,17 @@
                 </div>
             </div>
 
+            <!-- OFFICIAL TOKEN & PRESALE ADDRESSES -->
             <div class="form-group" style="margin-top: 15px;">
-                <label>Verified Presale Contract:</label>
+                <label>🪙 Official Whitehenium (WHM) Token Contract Address:</label>
+                <div class="address-box" id="whm-token-address">0x76dcb46059583Dde2f5Bcc3ECC4cDe014E4B3D7f</div>
+                <div style="text-align: center;"><button class="copy-btn" onclick="copyAddress('whm-token-address')">Copy Token Address</button></div>
+            </div>
+
+            <div class="form-group" style="margin-top: 10px;">
+                <label>Verified Presale Contract Address:</label>
                 <div class="address-box" id="receiving-address">0xb598d65510A2d8e61FA474f33349f4a15Ec5816E</div>
-                <div style="text-align: center;"><button class="copy-btn" onclick="copyAddress()">Copy Contract</button></div>
+                <div style="text-align: center;"><button class="copy-btn" onclick="copyAddress('receiving-address')">Copy Presale Address</button></div>
             </div>
         </div>
     </section>
@@ -494,21 +546,16 @@
         <p>© 2026 Whitehenium (WHM) Ecosystem. All rights reserved.</p>
     </footer>
 
-    <!-- WEB3 INTEGRATION SCRIPT -->
+    <!-- WEB3, STAGE & LIVE DATA SCRIPT -->
     <script>
         const PRESALE_CONTRACT = "0xb598d65510A2d8e61FA474f33349f4a15Ec5816E";
         
-        // Multi-RPC Backup Provider Setup
-        const RPC_NODES = [
-            "https://bsc-dataseed.binance.org/",
-            "https://bsc-dataseed1.defibit.io/",
-            "https://bsc-dataseed1.ninicoin.io/"
-        ];
-
         const CONTRACT_ABI = [
             "function getLatestBnbPrice() public view returns (uint256)",
             "function getCurrentTokenPriceUsd() public view returns (uint256)",
             "function currentStage() public view returns (uint8)",
+            "function stageTotalSold(uint8) public view returns (uint256)",
+            "function totalTokensSold() public view returns (uint256)",
             "function buyTokens() external payable"
         ];
 
@@ -518,49 +565,86 @@
         let liveBnbUsd = 0;
         let currentTokenUsd = 0.001;
 
-        async function initReadProvider() {
-            for (let rpc of RPC_NODES) {
-                try {
-                    const tempProvider = new ethers.providers.JsonRpcProvider(rpc);
-                    const tempContract = new ethers.Contract(PRESALE_CONTRACT, CONTRACT_ABI, tempProvider);
-                    
-                    // Test call
-                    await tempContract.currentStage();
-                    provider = tempProvider;
-                    contractRead = tempContract;
-                    break;
-                } catch (e) {
-                    console.warn("RPC Failed:", rpc);
+        // Fetch Live BNB Rate from API
+        async function fetchBnbPrice() {
+            try {
+                const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT');
+                const data = await res.json();
+                if (data && data.price) {
+                    liveBnbUsd = parseFloat(data.price);
+                    document.getElementById("live-bnb-price").innerText = "$" + liveBnbUsd.toFixed(2);
+                    calculateTokens();
+                    return;
                 }
+            } catch (err) {
+                console.warn("Binance API fetch failed, trying contract...", err);
             }
-            
+
             if (contractRead) {
-                await fetchLiveMetrics();
-                setInterval(fetchLiveMetrics, 12000);
-            } else {
-                document.getElementById("live-bnb-price").innerText = "$720.00 (Estimated)";
+                try {
+                    const bnbPriceWei = await contractRead.getLatestBnbPrice();
+                    liveBnbUsd = parseFloat(ethers.utils.formatEther(bnbPriceWei));
+                    document.getElementById("live-bnb-price").innerText = "$" + liveBnbUsd.toFixed(2);
+                    calculateTokens();
+                } catch (e) {
+                    document.getElementById("live-bnb-price").innerText = "$650.00 (Estimated)";
+                    liveBnbUsd = 650.00;
+                }
             }
         }
 
-        async function fetchLiveMetrics() {
+        async function initReadProvider() {
             try {
-                // Fetch BNB Rate from Chainlink via Smart Contract
-                const bnbPriceWei = await contractRead.getLatestBnbPrice();
-                liveBnbUsd = parseFloat(ethers.utils.formatEther(bnbPriceWei));
-                document.getElementById("live-bnb-price").innerText = "$" + liveBnbUsd.toFixed(2);
+                provider = new ethers.providers.JsonRpcProvider("https://bsc-dataseed1.binance.org/");
+                contractRead = new ethers.Contract(PRESALE_CONTRACT, CONTRACT_ABI, provider);
 
-                // Fetch Current Stage and Token USD Price
-                const stage = await contractRead.currentStage();
-                const tokenPriceWei = await contractRead.getCurrentTokenPriceUsd();
-                currentTokenUsd = parseFloat(ethers.utils.formatEther(tokenPriceWei));
+                // Fetch Stage and Price
+                let stage = 1;
+                try {
+                    stage = await contractRead.currentStage();
+                } catch(e) { stage = 1; }
+
+                try {
+                    const tokenPriceWei = await contractRead.getCurrentTokenPriceUsd();
+                    currentTokenUsd = parseFloat(ethers.utils.formatEther(tokenPriceWei));
+                } catch(e) {
+                    currentTokenUsd = 0.001;
+                }
 
                 document.getElementById("current-stage-display").innerText = 
                     Current Stage: Level ${stage} ($${currentTokenUsd} / WHM);
 
-                calculateTokens();
+                // Fetch Sold Tokens Data
+                let soldTokens = 0;
+                try {
+                    const soldWei = await contractRead.stageTotalSold(stage);
+                    soldTokens = parseFloat(ethers.utils.formatEther(soldWei));
+                } catch(e) {
+                    try {
+                        const totalSoldWei = await contractRead.totalTokensSold();
+                        soldTokens = parseFloat(ethers.utils.formatEther(totalSoldWei));
+                    } catch(err) {
+                        soldTokens = 0;
+                    }
+                }
+
+                const stageTarget = 100000000;
+                document.getElementById("sold-tokens-text").innerText = soldTokens.toLocaleString() + " WHM";
+                
+                let percentage = ((soldTokens / stageTarget) * 100).toFixed(2);
+                if (percentage > 100) percentage = 100;
+
+                document.getElementById("progress-bar-fill").style.width = percentage + "%";
+                document.getElementById("progress-percent-text").innerText = percentage + "% Completed";
+
             } catch (err) {
-                console.error("Fetch metrics error:", err);
+                console.warn("RPC Read Error:", err);
+                document.getElementById("current-stage-display").innerText = "Current Stage: Level 1 ($0.001 / WHM)";
+                document.getElementById("sold-tokens-text").innerText = "0 WHM";
             }
+
+            await fetchBnbPrice();
+            setInterval(fetchBnbPrice, 10000);
         }
 
         function calculateTokens() {
@@ -577,8 +661,21 @@
         async function connectWallet() {
             if (window.ethereum) {
                 try {
-                    const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+                    const web3Provider = new ethers.providers.Web3Provider(window.ethereum, "any");
                     await web3Provider.send("eth_requestAccounts", []);
+                    
+                    const network = await web3Provider.getNetwork();
+                    if (network.chainId !== 56) {
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId: '0x38' }],
+                            });
+                        } catch (switchError) {
+                            console.error("Please switch your wallet network to BSC (Binance Smart Chain).");
+                        }
+                    }
+
                     signer = web3Provider.getSigner();
                     const userAddr = await signer.getAddress();
                     
@@ -592,7 +689,7 @@
                     document.getElementById("status-msg").innerText = "Wallet Connection Cancelled.";
                 }
             } else {
-                alert("Please open this site inside MetaMask or Trust Wallet DApp Browser.");
+                alert("Metamask or Trust Wallet missing! Please open using a Web3 Browser.");
             }
         }
 
@@ -611,29 +708,29 @@
             try {
                 const writeContract = new ethers.Contract(PRESALE_CONTRACT, CONTRACT_ABI, signer);
                 document.getElementById("status-msg").style.color = "#f0b90b";
-                document.getElementById("status-msg").innerText = "Transaction Initiated... Confirm in Wallet.";
+                document.getElementById("status-msg").innerText = "Transaction Initiated... Please confirm in Wallet.";
 
                 const tx = await writeContract.buyTokens({
-                    value: ethers.utils.parseEther(payAmount)
+                    value: ethers.utils.parseEther(payAmount.toString())
                 });
 
                 document.getElementById("status-msg").innerText = "Processing Transaction on BSC...";
                 await tx.wait();
 
                 document.getElementById("status-msg").style.color = "#4ade80";
-                document.getElementById("status-msg").innerText = "Purchase Successful! Tokens sent to your wallet.";
-                fetchLiveMetrics();
+                document.getElementById("status-msg").innerText = "Purchase Successful! WHM Tokens sent to your wallet.";
+                initReadProvider();
             } catch (err) {
                 console.error("Buy Error:", err);
                 document.getElementById("status-msg").style.color = "#ff4d4d";
-                document.getElementById("status-msg").innerText = "Transaction Failed or Cancelled.";
+                document.getElementById("status-msg").innerText = "Transaction Failed or User Cancelled.";
             }
         }
 
-        function copyAddress() {
-            const addr = document.getElementById("receiving-address").innerText;
+        function copyAddress(elementId) {
+            const addr = document.getElementById(elementId).innerText;
             navigator.clipboard.writeText(addr);
-            alert("Contract Address Copied: " + addr);
+            alert("Copied: " + addr);
         }
 
         window.onload = initReadProvider;
