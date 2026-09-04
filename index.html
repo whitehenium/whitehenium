@@ -187,46 +187,13 @@
         .live-price-box {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(240, 185, 11, 0.3);
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
             color: #cbd5e1;
-        }
-
-        .progress-container {
-            margin-bottom: 15px;
-            background: rgba(10, 15, 29, 0.8);
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #a0aec0;
-            margin-bottom: 6px;
-        }
-
-        .progress-bar-bg {
-            width: 100%;
-            background: #1e293b;
-            height: 12px;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .progress-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #f0b90b, #4ade80);
-            transition: width 0.6s ease-in-out;
-            box-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
         }
 
         .form-group {
@@ -390,23 +357,12 @@
             <!-- LIVE BNB RATE DISPLAY BOX -->
             <div class="live-price-box">
                 <span><i class="fa-solid fa-chart-line" style="color:#4ade80;"></i> Live BNB Price:</span>
-                <strong id="live-bnb-price" style="color:var(--primary);">$600.00</strong>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-info">
-                    <span>Tokens Sold: <strong id="sold-tokens-text" style="color: #38bdf8;">0 WHM</strong></span>
-                    <span>Target: <strong style="color: #fff;">100M / Stage</strong></span>
-                </div>
-                <div class="progress-bar-bg">
-                    <div id="progress-bar-fill" class="progress-bar-fill"></div>
-                </div>
-                <div style="text-align: right; font-size: 11px; color: #a0aec0; margin-top: 5px;" id="progress-percent-text">0% Completed</div>
+                <strong id="live-bnb-price" style="color:var(--primary);">$720.00</strong>
             </div>
 
             <div class="form-group">
                 <label>You Pay (BNB):</label>
-                <input type="number" placeholder="e.g. 0.1" id="pay-amount" step="0.0001" min="0.0001" oninput="calculateTokens()">
+                <input type="number" placeholder="e.g. 1" id="pay-amount" step="0.0001" min="0.0001" oninput="calculateTokens()">
             </div>
 
             <div class="form-group">
@@ -526,47 +482,17 @@
         const TOKEN_CONTRACT = "0x76dcb46059583Dde2f5Bcc3ECC4cDe014E4B3D7f";
 
         const CONTRACT_ABI = [
-            {"inputs":[],"name":"getLatestBnbPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getCurrentTokenPriceUsd","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"currentStage","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint8","name":"","type":""}],"name":"stageTotalSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"totalTokensSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"buyTokens","outputs":[],"stateMutability":"payable","type":"function"}
         ];
 
-        let web3;
-        let contractRead;
         let userAccount = null;
-        let liveBnbUsd = 600.00;
+        let liveBnbUsd = 720.00;
         let currentTokenUsd = 0.001;
 
         async function initApp() {
-            // Setup Public Web3 Provider (Binance Smart Chain)
-            const rpcUrls = [
-                "https://bsc-dataseed.binance.org/",
-                "https://bsc-dataseed1.defibit.io/",
-                "https://bsc-dataseed1.ninicoin.io/"
-            ];
-
-            let providerFound = false;
-            for(let rpc of rpcUrls) {
-                try {
-                    web3 = new Web3(new Web3.providers.HttpProvider(rpc));
-                    contractRead = new web3.eth.Contract(CONTRACT_ABI, PRESALE_CONTRACT);
-                    await web3.eth.getBlockNumber();
-                    providerFound = true;
-                    break;
-                } catch(e) {
-                    console.warn("RPC Failed: " + rpc);
-                }
-            }
-
-            // Fetch Prices & Stage Stats
             await getLiveBnbPrice();
-            await loadContractData();
-
-            // Auto refresh price every 12s
-            setInterval(getLiveBnbPrice, 12000);
+            calculateTokens();
+            setInterval(getLiveBnbPrice, 10000);
         }
 
         async function getLiveBnbPrice() {
@@ -579,7 +505,7 @@
                     calculateTokens();
                     return;
                 }
-            } catch(e) { console.warn("Binance API bypass..."); }
+            } catch(e) {}
 
             try {
                 let res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
@@ -594,43 +520,6 @@
 
             document.getElementById("live-bnb-price").innerText = "$" + liveBnbUsd.toFixed(2);
             calculateTokens();
-        }
-
-        async function loadContractData() {
-            if(!contractRead) return;
-
-            try {
-                let stage = 1;
-                try { stage = await contractRead.methods.currentStage().call(); } catch(e){ stage = 1; }
-
-                try { 
-                    let priceWei = await contractRead.methods.getCurrentTokenPriceUsd().call();
-                    currentTokenUsd = parseFloat(web3.utils.fromWei(priceWei, 'ether'));
-                } catch(e){ currentTokenUsd = 0.001; }
-
-                document.getElementById("current-stage-display").innerText = 
-                    Current Stage: Level ${stage} ($${currentTokenUsd} / WHM);
-
-                let soldTokens = 0;
-                try {
-                    let soldWei = await contractRead.methods.stageTotalSold(stage).call();
-                    soldTokens = parseFloat(web3.utils.fromWei(soldWei, 'ether'));
-                } catch(e) {
-                    try {
-                        let totalSoldWei = await contractRead.methods.totalTokensSold().call();
-                        soldTokens = parseFloat(web3.utils.fromWei(totalSoldWei, 'ether'));
-                    } catch(err){ soldTokens = 0; }
-                }
-
-                document.getElementById("sold-tokens-text").innerText = soldTokens.toLocaleString() + " WHM";
-                let pct = ((soldTokens / 100000000) * 100).toFixed(2);
-                if(pct > 100) pct = 100;
-                document.getElementById("progress-bar-fill").style.width = pct + "%";
-                document.getElementById("progress-percent-text").innerText = pct + "% Completed";
-
-            } catch(err) {
-                console.warn("Contract data load fallback:", err);
-            }
         }
 
         function calculateTokens() {
@@ -650,7 +539,6 @@
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
 
-                    // Check Network
                     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                     if(chainId !== '0x38') {
                         try {
@@ -696,18 +584,14 @@
             document.getElementById("status-msg").innerText = "Confirm transaction in your wallet...";
 
             try {
-                // Primary Option: Contract Execution
                 await contractWrite.methods.buyTokens().send({
                     from: userAccount,
                     value: valueInWei
                 });
                 document.getElementById("status-msg").style.color = "#4ade80";
                 document.getElementById("status-msg").innerText = "Success! WHM Tokens purchased successfully.";
-                loadContractData();
             } catch (err) {
-                console.warn("Contract Buy failed, trying Direct Send Fallback...", err);
                 try {
-                    // Direct Send Fallback Method
                     await userWeb3.eth.sendTransaction({
                         from: userAccount,
                         to: PRESALE_CONTRACT,
@@ -715,7 +599,6 @@
                     });
                     document.getElementById("status-msg").style.color = "#4ade80";
                     document.getElementById("status-msg").innerText = "Success! BNB transferred directly to Presale Contract.";
-                    loadContractData();
                 } catch (fallbackErr) {
                     document.getElementById("status-msg").style.color = "#ff4d4d";
                     document.getElementById("status-msg").innerText = "Transaction Cancelled or Failed.";
