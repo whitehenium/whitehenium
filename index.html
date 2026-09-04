@@ -1,29 +1,4 @@
-[10:35 PM, 9/4/2026] Jassi: <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whitehenium (WHM) | Next-Gen Multi-Chain Utility Token</title>
-    <!-- Web3.js & FontAwesome Support -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.10.0/web3.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #f0b90b;
-            --secondary: #4facfe;
-            --dark: #0a0f1d;
-            --card-bg: rgba(20, 28, 46, 0.85);
-            --text: #ffffff;
-            --accent: #ff007a;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-         …
-[10:35 PM, 9/4/2026] Jassi: नया वेबसाइट बोर्ड
-[10:35 PM, 9/4/2026] Jassi: Code
-[11:26 PM, 9/4/2026] Jassi: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -66,7 +41,7 @@
             transform: translate(-50%, -50%);
             width: 600px;
             height: 600px;
-            background-image: url('logo.png');
+            background-image: url('logo.png1');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -212,11 +187,12 @@
         .live-price-box {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid rgba(240, 185, 11, 0.3);
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
             color: #cbd5e1;
         }
@@ -382,12 +358,12 @@
             <!-- LIVE BNB RATE DISPLAY BOX -->
             <div class="live-price-box">
                 <span><i class="fa-solid fa-chart-line" style="color:#4ade80;"></i> Live BNB Price:</span>
-                <strong id="live-bnb-price" style="color:var(--primary);">Fetching...</strong>
+                <strong id="live-bnb-price" style="color:var(--primary); font-size: 16px;">Loading...</strong>
             </div>
 
             <div class="form-group">
                 <label>You Pay (BNB):</label>
-                <input type="number" placeholder="e.g. 0.1" id="pay-amount" step="0.001" min="0.001" oninput="calculateTokens()">
+                <input type="number" placeholder="e.g. 0.1" id="pay-amount" step="0.001" min="0.001" onkeyup="calculateTokens()" oninput="calculateTokens()">
             </div>
 
             <div class="form-group">
@@ -578,4 +554,162 @@
         </div>
     </section>
 
-    <footer
+    <footer>
+        <p>Verified Contract: 0x8305D6157718cf0A3e24400Ad6743554016d6ce2</p>
+        <p style="margin-top: 5px;">&copy; 2026 Whitehenium (WHM). All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const PRESALE_CONTRACT = "0x8305D6157718cf0A3e24400Ad6743554016d6ce2";
+        let liveBnbPriceUsd = 720; // Secure Fallback Rate
+        const TIER1_PRICE_USD = 0.001;
+        let userAccount = null;
+
+        // MULTI-API FAILSAFE PRICE FETCH SYSTEM
+        async function fetchLiveBnbPrice() {
+            const priceDisplay = document.getElementById('live-bnb-price');
+            
+            // Attempt 1: Binance Public API
+            try {
+                const res1 = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT');
+                const data1 = await res1.json();
+                if(data1 && data1.price) {
+                    liveBnbPriceUsd = parseFloat(data1.price);
+                    priceDisplay.innerText = "$" + liveBnbPriceUsd.toFixed(2) + " USD";
+                    calculateTokens();
+                    return;
+                }
+            } catch (e1) { console.log("Binance API failed, trying CoinGecko..."); }
+
+            // Attempt 2: CoinGecko API
+            try {
+                const res2 = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd');
+                const data2 = await res2.json();
+                if(data2 && data2.binancecoin && data2.binancecoin.usd) {
+                    liveBnbPriceUsd = parseFloat(data2.binancecoin.usd);
+                    priceDisplay.innerText = "$" + liveBnbPriceUsd.toFixed(2) + " USD";
+                    calculateTokens();
+                    return;
+                }
+            } catch (e2) { console.log("CoinGecko API failed, trying CryptoCompare..."); }
+
+            // Attempt 3: CryptoCompare API
+            try {
+                const res3 = await fetch('https://min-api.cryptocompare.com/data/price?fsym=BNB&tsyms=USD');
+                const data3 = await res3.json();
+                if(data3 && data3.USD) {
+                    liveBnbPriceUsd = parseFloat(data3.USD);
+                    priceDisplay.innerText = "$" + liveBnbPriceUsd.toFixed(2) + " USD";
+                    calculateTokens();
+                    return;
+                }
+            } catch (e3) { console.log("All APIs failed, using fallback price."); }
+
+            // Default Fallback
+            priceDisplay.innerText = "$" + liveBnbPriceUsd.toFixed(2) + " USD";
+            calculateTokens();
+        }
+
+        // Run price fetch on page load
+        window.addEventListener('DOMContentLoaded', fetchLiveBnbPrice);
+
+        function calculateTokens() {
+            const bnbVal = parseFloat(document.getElementById('pay-amount').value);
+            const receiveInput = document.getElementById('receive-amount');
+
+            if (!bnbVal || bnbVal <= 0 || isNaN(bnbVal)) {
+                receiveInput.value = "";
+                return;
+            }
+
+            const usdValue = bnbVal * liveBnbPriceUsd;
+            const tokenQty = usdValue / TIER1_PRICE_USD;
+            receiveInput.value = Math.floor(tokenQty).toLocaleString('en-US') + " WHM";
+        }
+
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    const shortAddr = userAccount.substring(0, 6) + "..." + userAccount.substring(userAccount.length - 4);
+                    document.getElementById('connect-btn').innerText = shortAddr;
+                    showStatus("Wallet Connected Successfully!", "#4ade80");
+                } catch (err) {
+                    showStatus("Wallet connection failed: " + err.message, "#f87171");
+                }
+            } else {
+                alert("Please open this website inside MetaMask or Trust Wallet App browser.");
+            }
+        }
+
+        async function buyTokens() {
+            if (!userAccount) {
+                await connectWallet();
+                if (!userAccount) return;
+            }
+
+            const bnbInput = document.getElementById('pay-amount').value;
+            if (!bnbInput || parseFloat(bnbInput) <= 0) {
+                alert("Please enter a valid BNB amount!");
+                return;
+            }
+
+            showStatus("Processing Transaction... Please Confirm in Wallet.", "#facc15");
+
+            try {
+                const web3 = new Web3(window.ethereum);
+                
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 56 && chainId !== 56n) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x38' }],
+                        });
+                    } catch (switchError) {
+                        showStatus("Please switch your wallet network to BNB Smart Chain (BSC Mainnet).", "#f87171");
+                        return;
+                    }
+                }
+
+                const minABI = [
+                    {
+                        "inputs": [],
+                        "name": "buyTokens",
+                        "outputs": [],
+                        "stateMutability": "payable",
+                        "type": "function"
+                    }
+                ];
+
+                const contract = new web3.eth.Contract(minABI, PRESALE_CONTRACT);
+                const weiAmount = web3.utils.toWei(bnbInput.toString(), 'ether');
+
+                await contract.methods.buyTokens().send({
+                    from: userAccount,
+                    value: weiAmount,
+                    gas: 250000
+                });
+
+                showStatus("Transaction Successful! WHM Tokens delivered to your wallet.", "#4ade80");
+            } catch (error) {
+                console.error("Buy Error:", error);
+                showStatus("Transaction Failed: " + (error.message || "User denied transaction"), "#f87171");
+            }
+        }
+
+        function copyAddress() {
+            const addr = document.getElementById('receiving-address').innerText;
+            navigator.clipboard.writeText(addr);
+            alert("Contract Address Copied: " + addr);
+        }
+
+        function showStatus(msg, color) {
+            const el = document.getElementById('status-msg');
+            el.innerText = msg;
+            el.style.color = color;
+        }
+    </script>
+</body>
+</html>
