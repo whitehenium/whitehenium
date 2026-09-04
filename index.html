@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whitehenium (WHM) | Multi-Chain Utility Token</title>
+    <title>Whitehenium (WHM) | Next-Gen Multi-Chain Utility Token</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         :root {
@@ -15,126 +15,357 @@
             --accent: #ff007a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--dark); color: var(--text); line-height: 1.6; position: relative; overflow-x: hidden; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        /* Background Watermark Logo Fix */
+        body {
+            background-color: var(--dark);
+            color: var(--text);
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Giant Watermark Background Logo Fix */
         body::before {
-            content: ""; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 600px; height: 600px; 
-            background-image: url('logo.png'); 
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background-image: url('logo.png');
             background-size: contain;
-            background-repeat: no-repeat; background-position: center; opacity: 0.10;
-            filter: drop-shadow(0 0 40px rgba(240, 185, 11, 0.4)); z-index: -1; pointer-events: none;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.10;
+            filter: drop-shadow(0 0 40px rgba(240, 185, 11, 0.4));
+            z-index: -1;
+            pointer-events: none;
         }
 
         header {
-            display: flex; justify-content: space-between; align-items: center; padding: 15px 5%;
-            background: rgba(10, 15, 29, 0.95); position: fixed; width: 100%; top: 0; z-index: 1000;
-            backdrop-filter: blur(10px); border-bottom: 1px solid rgba(240, 185, 11, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 8%;
+            background: rgba(10, 15, 29, 0.95);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(240, 185, 11, 0.2);
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; }
-        .logo-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(240, 185, 11, 0.5); }
-        .logo-text { font-size: 20px; font-weight: bold; color: var(--primary); letter-spacing: 1px; }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-        nav a { color: #fff; text-decoration: none; margin-left: 20px; font-weight: 500; transition: 0.3s; }
-        nav a:hover { color: var(--primary); }
+        .logo-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 0 10px rgba(240, 185, 11, 0.5);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary);
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            margin-left: 20px;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
 
         .btn-connect {
-            background: linear-gradient(45deg, var(--primary), #ffe066); border: none; padding: 10px 18px;
-            color: #000; font-weight: bold; border-radius: 25px; cursor: pointer; transition: 0.3s;
+            background: linear-gradient(45deg, var(--primary), #ffe066);
+            border: none;
+            padding: 10px 22px;
+            color: #000;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .hero { padding: 40px 5% 60px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
-        .hero-text { flex: 1.2; min-width: 300px; }
-        .hero-text h1 { font-size: 38px; margin-bottom: 15px; background: linear-gradient(to right, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-connect:hover {
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .hero {
+            padding: 40px 8% 80px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .hero-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .hero-text h1 {
+            font-size: 46px;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            color: #a0aec0;
+            margin-bottom: 25px;
+        }
+
+        .badge-ecosystem {
+            display: inline-block;
+            background: rgba(240, 185, 11, 0.15);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
 
         .buy-card {
-            flex: 1; min-width: 310px; background: var(--card-bg); padding: 25px; border-radius: 20px;
-            border: 1px solid rgba(240, 185, 11, 0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 320px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(240, 185, 11, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
         }
 
-        .stage-badge { text-align: center; background: #1e293b; color: #38bdf8; padding: 6px; border-radius: 8px; font-size: 14px; font-weight: bold; margin-bottom: 15px; border: 1px solid #38bdf8; }
-        
-        .progress-container { margin-bottom: 15px; }
-        .progress-bar { width: 100%; height: 12px; background: #1a202c; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .progress-fill { width: 15%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); }
+        .buy-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+            text-align: center;
+            font-size: 22px;
+        }
 
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: #a0aec0; }
-        .form-group input, .form-group select { width: 100%; padding: 10px; background: #0a0f1d; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff; }
+        .stage-badge {
+            text-align: center;
+            background: #1e293b;
+            color: #38bdf8;
+            padding: 6px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px solid #38bdf8;
+        }
 
-        .btn-buy { width: 100%; background: linear-gradient(45deg, var(--primary), #d4a007); border: none; padding: 12px; color: #000; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        .progress-container {
+            margin-bottom: 20px;
+        }
 
-        .mobile-wallet-options { display: flex; gap: 10px; margin-top: 12px; }
+        .progress-bar {
+            width: 100%;
+            background: #0a0f1d;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 5%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.5s ease;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0f1d;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+        }
+
+        .btn-buy {
+            width: 100%;
+            background: linear-gradient(45deg, var(--primary), #d4a007);
+            border: none;
+            padding: 14px;
+            color: #000;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .mobile-wallet-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
         .btn-mobile-wallet {
-            flex: 1; padding: 10px; background: #1e293b; border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; text-align: center; text-decoration: none;
+            flex: 1;
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
         }
 
-        section { padding: 60px 5%; }
-        .section-title { text-align: center; font-size: 32px; margin-bottom: 30px; color: var(--primary); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        .address-box {
+            background: #0a0f1d;
+            padding: 10px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: monospace;
+            border: 1px dashed var(--primary);
+            margin-top: 8px;
+            text-align: center;
+            color: var(--primary);
+            font-size: 12px;
+        }
 
-        footer { text-align: center; padding: 20px; background: #050811; color: #718096; font-size: 13px; }
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        section {
+            padding: 80px 8%;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: var(--primary);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .roadmap-card {
+            border-left: 4px solid var(--primary);
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: #050811;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #a0aec0;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Header Bar -->
     <header>
         <div class="logo-container">
             <img src="logo.png" alt="Whitehenium Logo" class="logo-img">
-            <span class="logo-text">WHITEHENIUM</span>
+            <span class="logo-text">WHITEHENIUM (WHM)</span>
         </div>
         <nav>
             <a href="#about">About</a>
             <a href="#vision">Vision</a>
+            <a href="#whitepaper">Roadmap & Whitepaper</a>
             <a href="#tokenomics">Tokenomics</a>
         </nav>
         <button class="btn-connect" id="connect-btn" onclick="connectWallet()">Connect Wallet</button>
     </header>
 
-    <!-- TOP BANNER AD SPACE -->
+    <!-- TOP BANNER ADVERTISEMENT SPACE -->
     <div style="width: 90%; max-width: 900px; margin: 90px auto 0px; text-align: center; padding: 10px; background: rgba(255,255,255,0.02); border: 1px dashed rgba(240, 185, 11, 0.3); border-radius: 8px;">
         <p style="font-size: 10px; color: #a0aec0; margin-bottom: 3px;">ADVERTISEMENT</p>
         <div id="ad-banner-top" style="min-height: 90px; display: flex; align-items: center; justify-content: center; color: #a0aec0; font-size: 13px;">
-            <!-- Paste Ad Code Here (728x90) -->
-            Banner Ad Space
+            <!-- Paste Banner Ad Script Code Here (728x90) -->
+            Banner Ad Space (728x90)
         </div>
     </div>
 
-    <!-- Hero / Presale Section -->
     <section class="hero">
         <div class="hero-text">
-            <h1>Next-Gen Multi-Chain Utility Token</h1>
-            <p style="color:#a0aec0; margin-bottom:20px;">Powering the future of decentralized e-commerce, multi-chain liquidity, and digital ecosystem expansion.</p>
-            
-            <div class="card" style="margin-top: 20px;" id="about">
-                <h3 style="color:var(--primary); margin-bottom:10px;">Project Overview</h3>
-                <p style="color:#cbd5e1; font-size:14px;">Whitehenium (WHM) provides automated tiered pricing for early investors with real-world product integration during Phase 3 rollout.</p>
-            </div>
+            <div class="badge-ecosystem">🌐 Global Real-World Utility Ecosystem</div>
+            <h1>Next-Gen Multi-Chain Utility Crypto</h1>
+            <p>Empowering the future of digital currency with real-world product integration, scarcity-driven tokenomics, and seamless cross-chain utility.</p>
+            <p><strong>Presale Limit:</strong> Strictly Capped at 400,000,000 WHM Tokens (40 Crore Limit).</p>
         </div>
 
-        <!-- Presale Widget -->
         <div class="buy-card">
-            <div class="stage-badge">Stage 1: $0.001 | Hard Cap: 40 Cr WHM</div>
+            <h3>Direct Crypto Presale</h3>
+            <div class="stage-badge" id="current-stage-display">Current Stage: Level 1 ($0.001 / WHM)</div>
 
             <div class="progress-container">
-                <div style="display:flex; justify-between; font-size:12px; color:#a0aec0; margin-bottom:5px;">
-                    <span>Raised: 1.5 Cr</span>
-                    <span>Target: 10 Cr (L1)</span>
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
+                    <span>Presale Progress</span>
+                    <span id="sold-text">0 / 400,000,000 WHM</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill"></div>
+                    <div class="progress-fill" id="progress-fill"></div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>Select Payment Coin</label>
-                <select id="crypto-select">
+                <label>Select Payment Coin / Network</label>
+                <select id="crypto-select" onchange="calculateTokens()">
                     <option value="usdt">USDT (BEP-20 / ERC-20)</option>
                     <option value="bnb">BNB (Binance Smart Chain)</option>
                     <option value="eth">ETH (Ethereum)</option>
@@ -142,8 +373,8 @@
             </div>
 
             <div class="form-group">
-                <label>You Pay (USD)</label>
-                <input type="number" placeholder="Enter USD amount" id="pay-amount" oninput="calculateTokens()">
+                <label>You Pay (USD Equivalent)</label>
+                <input type="number" placeholder="e.g. 50" id="pay-amount" oninput="calculateTokens()">
             </div>
 
             <div class="form-group">
@@ -151,9 +382,9 @@
                 <input type="text" placeholder="Auto Calculated" readonly id="receive-amount">
             </div>
 
-            <button class="btn-buy" onclick="buyTokens()">Buy WHM Token</button>
+            <button class="btn-buy" onclick="buyTokens()">Buy WHM Token Now</button>
 
-            <!-- Mobile Wallet App Deep Links -->
+            <!-- MOBILE APP DEEP LINK BUTTONS -->
             <div style="margin-top:15px; text-align:center;">
                 <p style="font-size:11px; color:#a0aec0; margin-bottom:6px;">Mobile Users — Connect via App:</p>
                 <div class="mobile-wallet-options">
@@ -162,87 +393,147 @@
                 </div>
             </div>
 
-            <!-- SIDEBAR AD SPACE -->
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Official Admin Receiving Wallet:</label>
+                <div class="address-box" id="receiving-address">0x8602e8C8B565490169A35d54885d1CE0318Df475</div>
+                <button class="copy-btn" onclick="copyAddress()">Copy Address</button>
+            </div>
+
+            <!-- SIDEBAR/NATIVE ADVERTISEMENT SPACE -->
             <div style="margin-top: 20px; text-align: center; padding: 10px; background: rgba(10, 15, 29, 0.6); border: 1px dashed rgba(255,255,255,0.1); border-radius: 10px;">
                 <p style="font-size: 10px; color: #a0aec0; margin-bottom: 3px;">SPONSORED</p>
                 <div id="ad-sidebar" style="min-height: 200px; display: flex; align-items: center; justify-content: center; color: #a0aec0; font-size: 12px;">
-                    <!-- Paste Ad Code Here (300x250) -->
-                    Square Ad Space
+                    <!-- Paste Ad Script Code Here (300x250) -->
+                    Square Ad Space (300x250)
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Tokenomics Section -->
-    <section id="tokenomics">
+    <section id="vision" style="background: rgba(255,255,255,0.01);">
+        <h2 class="section-title">Founder's Vision</h2>
+        <div class="card" style="max-width: 900px; margin: 0 auto;">
+            <p style="font-size: 18px; line-height: 1.8; color: #cbd5e1;">
+                The core vision behind <strong>Whitehenium (WHM)</strong> is to build a high-utility, real-world backed cryptocurrency designed to stand alongside and ultimately compete with leading global digital assets like Bitcoin and Ethereum. By focusing on ultra-low transaction fees, high scalability, cross-chain integration, and an established commercial ecosystem, WHM aims to redefine digital asset utility and deliver sustainable long-term value.
+            </p>
+        </div>
+    </section>
+
+    <section id="whitepaper">
+        <h2 class="section-title">Whitepaper & Ecosystem Roadmap</h2>
+        <div style="max-width: 900px; margin: 0 auto;">
+            
+            <div class="card roadmap-card">
+                <h3 style="color: var(--primary);">Phase 1 & 2 — Token Presale & Community Building</h3>
+                <p style="color: #a0aec0;">Executing the 4-Level Tiered Presale capped strictly at 400 Million WHM Tokens to distribute initial supply to early supporters.</p>
+            </div>
+
+            <div class="card roadmap-card">
+                <h3 style="color: var(--secondary);">Phase 3 — WHM E-Commerce Marketplace & Utility</h3>
+                <p style="color: #a0aec0;">Launch of the Official WHM Product E-Commerce Website. Users can purchase apparel, branded shoes, food supplements (Moringa powder), and specialty foods directly using WHM Tokens, establishing genuine real-world utility.</p>
+            </div>
+
+            <div class="card roadmap-card">
+                <h3 style="color: #38bdf8;">Phase 4 — Centralized & Decentralized Exchange Listings</h3>
+                <p style="color: #a0aec0;">Post-presale completion, WHM will be listed on leading tier-1 crypto exchanges to enable global trading liquidity and market accessibility.</p>
+            </div>
+
+            <div class="card roadmap-card">
+                <h3 style="color: var(--accent);">Phase 5 — Global Expansion & Partnerships</h3>
+                <p style="color: #a0aec0;">Driving worldwide expansion through strategic enterprise partnerships, cross-chain bridge deployments, and international marketing initiatives.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="tokenomics" style="background: rgba(255,255,255,0.01);">
         <h2 class="section-title">Tokenomics Distribution</h2>
         <div class="grid">
             <div class="card" style="text-align: center;">
-                <h3 style="color:var(--primary); font-size:28px;">40%</h3>
-                <p style="color:#a0aec0;">Presale Supply</p>
+                <h2 style="color: var(--primary); font-size: 38px;">400M (40Cr)</h2>
+                <h3>Direct Presale (40%)</h3>
+                <p>Capped 4-Level Presale for early investors. Auto-stops upon completion.</p>
             </div>
             <div class="card" style="text-align: center;">
-                <h3 style="color:var(--secondary); font-size:28px;">30%</h3>
-                <p style="color:#a0aec0;">Exchange & Liquidity</p>
+                <h2 style="color: var(--secondary); font-size: 38px;">300M (30Cr)</h2>
+                <h3>Exchange & Liquidity (30%)</h3>
+                <p>Reserved for DEX/CEX liquidity pools and exchange listings.</p>
             </div>
             <div class="card" style="text-align: center;">
-                <h3 style="color:var(--accent); font-size:28px;">30%</h3>
-                <p style="color:#a0aec0;">Ecosystem Reserve</p>
+                <h2 style="color: var(--accent); font-size: 38px;">300M (30Cr)</h2>
+                <h3>Reserve & Ecosystem (30%)</h3>
+                <p>Allocated for long-term project development and operational reserves.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>© Whitehenium (WHM) Ecosystem. All rights reserved.</p>
-        <p style="font-size:11px; margin-top:5px; color:#4a5568;">Receiving Address: 0x8602e8C8B565490169A35d54885d1CE0318Df475</p>
+        <p>&copy; 2026 Whitehenium (WHM). All Rights Reserved.</p>
     </footer>
 
-    <!-- Scripts -->
     <script>
         const RECEIVING_WALLET = "0x8602e8C8B565490169A35d54885d1CE0318Df475";
+        let totalSoldTokens = 0; // Tracks total sold tokens
+        const TOTAL_PRESALE_CAP = 400000000; // 40 Crore Limit
+
+        // 4 Level Presale Pricing Structure
+        function getCurrentPrice() {
+            if (totalSoldTokens < 100000000) return 0.001; // Level 1 (0 - 10 Cr)
+            if (totalSoldTokens < 200000000) return 0.005; // Level 2 (10 - 20 Cr)
+            if (totalSoldTokens < 300000000) return 0.01;  // Level 3 (20 - 30 Cr)
+            if (totalSoldTokens <= 400000000) return 0.10; // Level 4 (30 - 40 Cr)
+            return null; // Presale Ended
+        }
+
+        function updateStageDisplay() {
+            const price = getCurrentPrice();
+            const badge = document.getElementById('current-stage-display');
+            
+            if (totalSoldTokens >= TOTAL_PRESALE_CAP) {
+                badge.innerText = "Presale Completed! (40 Crore Limit Reached)";
+                badge.style.color = "#ef4444";
+                badge.style.borderColor = "#ef4444";
+                return;
+            }
+
+            if (price === 0.001) badge.innerText = "Current Stage: Level 1 ($0.001 / WHM)";
+            else if (price === 0.005) badge.innerText = "Current Stage: Level 2 ($0.005 / WHM)";
+            else if (price === 0.01) badge.innerText = "Current Stage: Level 3 ($0.01 / WHM)";
+            else if (price === 0.10) badge.innerText = "Current Stage: Level 4 ($0.10 / WHM)";
+
+            // Update Progress Bar
+            const percent = (totalSoldTokens / TOTAL_PRESALE_CAP) * 100;
+            document.getElementById('progress-fill').style.width = Math.max(percent, 2) + '%';
+            document.getElementById('sold-text').innerText = totalSoldTokens.toLocaleString() + ' / 400,000,000 WHM';
+        }
 
         function calculateTokens() {
-            const usd = parseFloat(document.getElementById('pay-amount').value);
-            if (!usd || usd <= 0) { 
-                document.getElementById('receive-amount').value = ""; 
-                return; 
+            const usdAmount = parseFloat(document.getElementById('pay-amount').value);
+            const price = getCurrentPrice();
+
+            if (!usdAmount || usdAmount <= 0) {
+                document.getElementById('receive-amount').value = "";
+                return;
             }
-            // Rate Stage 1 = $0.001 per WHM
-            const tokens = usd / 0.001;
-            document.getElementById('receive-amount').value = tokens.toLocaleString() + " WHM";
+
+            if (totalSoldTokens >= TOTAL_PRESALE_CAP) {
+                document.getElementById('receive-amount').value = "Presale Sold Out!";
+                return;
+            }
+
+            const tokens = usdAmount / price;
+            
+            // Check 40 Crore Limit
+            if ((totalSoldTokens + tokens) > TOTAL_PRESALE_CAP) {
+                const remaining = TOTAL_PRESALE_CAP - totalSoldTokens;
+                document.getElementById('receive-amount').value = remaining.toLocaleString() + " WHM (Max Remaining)";
+            } else {
+                document.getElementById('receive-amount').value = tokens.toLocaleString() + " WHM";
+            }
         }
 
         async function connectWallet() {
             if (window.ethereum) {
                 try {
                     const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-                    const shortAcc = accounts[0].substring(0,6) + "..." + accounts[0].substring(38);
-                    document.getElementById('connect-btn').innerText = shortAcc;
-                } catch(e) {
-                    alert("Connection rejected!");
-                }
-            } else {
-                alert("Mobile Browser Detected! Standard Chrome/Safari cannot connect directly. Please use the 'Open in Trust Wallet' or 'Open in MetaMask' buttons below to connect.");
-            }
-        }
-
-        async function buyTokens() {
-            if (!window.ethereum) {
-                alert("Please open this website inside Trust Wallet / MetaMask App browser using the mobile buttons below.");
-                return;
-            }
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = provider.getSigner();
-            try {
-                const tx = await signer.sendTransaction({
-                    to: RECEIVING_WALLET,
-                    value: ethers.utils.parseEther("0.01") // Sample transaction limit
-                });
-                alert("Transaction Submitted! Hash: " + tx.hash);
-            } catch(e) {
-                alert("Transaction cancelled or failed.");
-            }
-        }
-    </script>
-</body>
-</html>
+                    document.get
